@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Calculator DApp</title>
+</head>
+<body>
+    <div>
+        <button onclick="connectMetamask()">Connect to Metamask</button>
+        <span id="connectedAddress"></span>
+      </div>
+  <h1>Simple Calculator</h1>
+  <div>
+    <label for="num1">Number 1:</label>
+    <input type="number" id="num1">
+  </div>
+  <div>
+    <label for="num2">Number 2:</label>
+    <input type="number" id="num2">
+  </div>
+  <div>
+    <button onclick="add()">Add</button>
+    <button onclick="subtract()">Subtract</button>
+    <button onclick="multiply()">Multiply</button>
+    <button onclick="divide()">Divide</button>
+  </div>
+  <div id="result"></div>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+  
+</body>
+</html>
+<script>
+    let web3;
+let contractInstance;
+let connectedAddress;
+
+async function init() {
+  if (typeof window.ethereum !== 'undefined') {
+    web3 = new Web3(window.ethereum);
+    try {
+      await window.ethereum.enable();
+    } catch (error) {
+      console.error('User denied account access');
+    }
+  } else if (typeof window.web3 !== 'undefined') {
+    web3 = new Web3(window.web3.currentProvider);
+  } else {
+    console.error('No web3 provider detected');
+  }
+
+  // Replace 'CONTRACT_ADDRESS' with the actual deployed contract address
+  const contractAddress = '0x3D1DFc1fbdaF88E038E03Ab5BdD7B41477b08a57';
+  const contractAbi = [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "a",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "b",
+				"type": "uint256"
+			}
+		],
+		"name": "add",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "a",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "b",
+				"type": "uint256"
+			}
+		],
+		"name": "divide",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "a",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "b",
+				"type": "uint256"
+			}
+		],
+		"name": "multiply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "a",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "b",
+				"type": "uint256"
+			}
+		],
+		"name": "subtract",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	}
+]
+
+  contractInstance = new web3.eth.Contract(contractAbi, contractAddress);
+}
+// add() function
+async function add() {
+  const num1 = parseInt(document.getElementById('num1').value);
+  const num2 = parseInt(document.getElementById('num2').value);
+
+  try {
+    const result = await contractInstance.methods.add(num1, num2).call();
+    document.getElementById('result').textContent = `Result: ${result}`;
+  } catch (error) {
+    console.error('Error calling add() function:', error);
+  }
+}
+
+
+// subtract() function
+async function subtract() {
+  const num1 = parseInt(document.getElementById('num1').value);
+  const num2 = parseInt(document.getElementById('num2').value);
+
+  try {
+    const result = await contractInstance.methods.subtract(num1, num2).call();
+    document.getElementById('result').textContent = `Result: ${result}`;
+  } catch (error) {
+    console.error('Error calling add() function:', error);
+  }
+}
+
+
+// multiply fuction 
+async function multiply() {
+  const num1 = parseInt(document.getElementById('num1').value);
+  const num2 = parseInt(document.getElementById('num2').value);
+
+  try {
+    const result = await contractInstance.methods.multiply(num1, num2).call();
+    document.getElementById('result').textContent = `Result: ${result}`;
+  } catch (error) {
+    console.error('Error calling multiply() function:', error);
+  }
+}
+
+//devide() function
+async function divide() {
+  const num1 = parseInt(document.getElementById('num1').value);
+  const num2 = parseInt(document.getElementById('num2').value);
+
+  try {
+    const result = await contractInstance.methods.divide(num1, num2).call();
+    document.getElementById('result').textContent = `Result: ${result}`;
+  } catch (error) {
+    console.error('Error calling divide() function:', error);
+  }
+}
+
+// connect to metamask button interaction fuction call
+
+async function connectMetamask() {
+  if (!web3) {
+    console.error('Web3 not initialized');
+    return;
+  }
+
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    console.log('Connected to Metamask:', accounts[0]);
+    connectedAddress = accounts[0];
+    document.getElementById('connectedAddress').textContent = `Connected Address: ${connectedAddress}`;
+  } catch (error) {
+    console.error('Error connecting to Metamask:', error);
+  }
+}
+
+window.onload = function () {
+  init();
+};
+
+</script>
